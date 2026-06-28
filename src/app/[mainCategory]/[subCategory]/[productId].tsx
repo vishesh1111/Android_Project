@@ -160,7 +160,7 @@ export default function ProductDetailScreen() {
             (uri, index) => (
               <ProductImage
                 key={index}
-                uri={uri}
+                source={uri}
                 className="bg-background-secondary"
                 contentFit="contain"
                 style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 0.85 }}

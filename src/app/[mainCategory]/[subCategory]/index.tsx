@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Pressable } from "react-native";
+import React, { useEffect, useState, useMemo } from "react";
+import { View, Text, FlatList, Pressable, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeft } from "lucide-react-native";
@@ -8,7 +8,6 @@ import {
   query,
   where,
   getDocs,
-  orderBy,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ProductCard from "@/components/ProductCard";
@@ -19,6 +18,41 @@ import { getLocalProducts } from "@/constants/products";
 import { COLORS } from "@/constants/theme";
 import type { Product, MainCategory } from "@/lib/types";
 
+const COMMERCIAL_STRENGTH_SERIES = [
+  "Signature Series (PC)",
+  "LEGACY SERIES (IP) – Selectorized Station",
+  "LEGACY SERIES (IP) - Benches & Racks",
+  "IT95 Series – Selectorized Station",
+  "IT Series - Benches & Racks",
+  "BS Series – Selectorized Station",
+  "KG Series Black – Selectorized Station",
+  "KG Series Black – Benches & Racks",
+  "Select Line (BR) - Selectorized Station",
+  "Conquer Series (PS) - Selectorized Station",
+  "BH Series - Spanish Design",
+  "E Series – Selectorized Station",
+  "E Series – Benches & Racks",
+  "Sigma Series (SS) – Selectorized Station",
+  "Titan Series - Plate Loading",
+  "PL Series – Plate Loading",
+  "JPL Series - Plate Loading",
+  "Beast Series – Benches & Racks",
+  "FL Series - Benches & Racks",
+  "IF Series - Benches & Racks",
+  "General - Equipment",
+  "Multi Station Gyms",
+  "Weight Lifting Platform & Add-ons",
+  "Free Weights",
+  "Barbells & Handles",
+];
+
+const COMMERCIAL_BIKE_SERIES = [
+  "Recumbent Bikes",
+  "Upright Bikes",
+  "Group Bikes",
+  "Air Bikes",
+];
+
 export default function ProductListingScreen() {
   const { mainCategory, subCategory } = useLocalSearchParams<{
     mainCategory: string;
@@ -28,15 +62,29 @@ export default function ProductListingScreen() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
 
-  // Get subcategory label from constants
   const categoryData = CATEGORIES[mainCategory as MainCategory];
   const subCategoryData = categoryData?.subcategories.find(
     (sc) => sc.id === subCategory
   );
   const subCategoryLabel = subCategoryData?.label ?? subCategory ?? "";
 
+  const isCommercialStrength = mainCategory === 'commercial' && subCategory === 'strength-training';
+  const isCommercialBikes = mainCategory === 'commercial' && subCategory === 'bikes';
+
+  const filterSeriesList = isCommercialStrength 
+    ? COMMERCIAL_STRENGTH_SERIES 
+    : isCommercialBikes 
+      ? COMMERCIAL_BIKE_SERIES 
+      : null;
+
   useEffect(() => {
+    if (filterSeriesList) {
+      setSelectedSeries(filterSeriesList[0]);
+    } else {
+      setSelectedSeries(null);
+    }
     fetchProducts();
   }, [mainCategory, subCategory]);
 
@@ -44,7 +92,6 @@ export default function ProductListingScreen() {
     try {
       setLoading(true);
 
-      // Check for local/hardcoded data first (for demo)
       const localProducts = getLocalProducts(
         mainCategory as string,
         subCategory as string
@@ -54,7 +101,6 @@ export default function ProductListingScreen() {
         return;
       }
 
-      // Fallback to Firebase
       const productsRef = collection(db, "products");
       const q = query(
         productsRef,
@@ -77,6 +123,19 @@ export default function ProductListingScreen() {
     }
   };
 
+  const displayedProducts = useMemo(() => {
+    if (filterSeriesList && selectedSeries) {
+      return products.filter((p) => {
+        if (p.type === selectedSeries || p.series === selectedSeries) return true;
+        // Handle plural to singular mapping (e.g., "Recumbent Bikes" -> "Recumbent Bike")
+        const singularSeries = selectedSeries.replace(/s$/, '');
+        if (p.type && p.type.includes(singularSeries)) return true;
+        return false;
+      });
+    }
+    return products;
+  }, [products, filterSeriesList, selectedSeries]);
+
   return (
     <SafeAreaView className="flex-1 bg-background-secondary">
       {/* Header */}
@@ -97,19 +156,53 @@ export default function ProductListingScreen() {
         </View>
         <View className="rounded-full bg-primary/10 px-3 py-1">
           <Text className="font-poppins-medium text-xs text-primary">
-            {loading ? "..." : `${products.length} items`}
+            {loading ? "..." : `${displayedProducts.length} items`}
           </Text>
         </View>
       </View>
 
+      {/* Series Filter */}
+      {filterSeriesList && (
+        <View className="bg-white border-b border-border">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}
+          >
+            {filterSeriesList.map((series) => {
+              const isActive = selectedSeries === series;
+              return (
+                <Pressable
+                  key={series}
+                  onPress={() => setSelectedSeries(series)}
+                  className={`px-4 py-2 rounded-full border ${
+                    isActive
+                      ? "bg-primary border-primary"
+                      : "bg-background-secondary border-border"
+                  }`}
+                >
+                  <Text
+                    className={`font-poppins-medium text-sm ${
+                      isActive ? "text-white" : "text-text-secondary"
+                    }`}
+                  >
+                    {series}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
+
       {/* Product Grid */}
       {loading ? (
         <LoadingSkeleton />
-      ) : products.length === 0 ? (
+      ) : displayedProducts.length === 0 ? (
         <EmptyState />
       ) : (
         <FlatList
-          data={products}
+          data={displayedProducts}
           keyExtractor={(item) => item.id}
           numColumns={2}
           columnWrapperStyle={{

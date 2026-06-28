@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import type { StyleProp, ViewStyle } from "react-native";
 
 interface ProductImageProps {
-  uri: string;
+  source: any;
   className?: string;
   contentFit?: "cover" | "contain" | "fill";
   style?: StyleProp<ViewStyle>;
@@ -14,12 +14,12 @@ const PLACEHOLDER_BLURHASH =
   "L6PZfSjE.AyE_3t7t7R**0o#DgR4";
 
 export default function ProductImage({
-  uri,
+  source,
   className = "",
   contentFit = "cover",
   style,
 }: ProductImageProps) {
-  if (!uri) {
+  if (!source) {
     return (
       <View
         className={`items-center justify-center bg-background-secondary ${className}`}
@@ -32,9 +32,12 @@ export default function ProductImage({
     );
   }
 
+  // Handle both string URIs and static require() sources
+  const imageSource = typeof source === 'string' ? { uri: source } : source;
+
   return (
     <Image
-      source={{ uri }}
+      source={imageSource}
       placeholder={{ blurhash: PLACEHOLDER_BLURHASH }}
       contentFit={contentFit}
       transition={200}

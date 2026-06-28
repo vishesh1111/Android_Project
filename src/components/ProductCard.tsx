@@ -27,7 +27,7 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
     >
       {/* Product Image */}
       <ProductImage
-        uri={product.images?.[0] ?? ""}
+        source={product.images?.[0] ?? ""}
         className="w-full"
         style={{ height: CARD_WIDTH * 0.85 }}
       />

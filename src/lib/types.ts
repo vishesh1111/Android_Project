@@ -23,8 +23,9 @@ export interface Product {
   features: string[];
   price?: number;
   mainCategory: MainCategory;
-  subCategory: string;
-  images: string[];
+  subCategory: string; // e.g., 'treadmills', 'bikes'
+  series?: string; // e.g., 'Signature Series (PC)' for commercial strength
+  images: any[];
   specifications: Record<string, string>;
   inStock: boolean;
   createdAt: Date;

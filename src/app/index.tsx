@@ -1,11 +1,10 @@
-import React from "react";
-import { View, Text, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import CategoryCard from "@/components/CategoryCard";
 import ThemeToggle from "@/components/ThemeToggle";
 import { CATEGORIES } from "@/constants/categories";
 import type { MainCategory } from "@/lib/types";
+import { useRouter } from "expo-router";
+import { ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SelectionScreen() {
   const router = useRouter();
@@ -28,14 +27,14 @@ export default function SelectionScreen() {
 
         {/* Header */}
         <View className="items-center px-6 pb-8 pt-2">
-          <Text 
+          <Text
             className="font-poppins-bold text-3xl text-primary tracking-wide"
-            style={{ textShadowColor: 'rgba(185, 28, 28, 0.4)', textShadowOffset: { width: 0, height: 4 }, textShadowRadius: 15 }}
+            style={{ textShadowColor: 'rgba(185, 28, 28, 0.4)', textShadowOffset: { width: 0, height: 4 }, textShadowRadius: 0 }}
           >
             VIVA FITNESS
           </Text>
           <Text className="mt-2 text-center font-poppins text-sm text-[#4A5568] dark:text-gray-300">
-            Premium Gym Equipment for Every Need
+            Premium Gym Equipments for Every Need
           </Text>
         </View>
 
@@ -55,7 +54,7 @@ export default function SelectionScreen() {
         {/* Footer */}
         <View className="mt-auto items-center pb-8 pt-10">
           <Text className="font-poppins text-xs font-medium text-[#718096] dark:text-gray-500">
-            Trusted by 500+ gyms across India
+            Trusted By Gyms Across India
           </Text>
         </View>
       </ScrollView>
