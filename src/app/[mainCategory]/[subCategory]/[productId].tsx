@@ -8,18 +8,44 @@ import {
   Linking,
   Dimensions,
   ActivityIndicator,
+  useColorScheme,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, ShoppingCart, MessageCircle, CheckCircle } from "lucide-react-native";
+import { ArrowLeft, ShoppingCart, MessageCircle, CheckCircle, Check, Plus, Minus } from "lucide-react-native";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ProductImage from "@/components/ProductImage";
+import FullScreenImageViewer from "@/components/FullScreenImageViewer";
 import SpecificationRow from "@/components/SpecificationRow";
 import { CATEGORIES } from "@/constants/categories";
 import { getLocalProductById } from "@/constants/products";
 import { COLORS } from "@/constants/theme";
+import { useCart } from "@/lib/CartContext";
 import type { Product, MainCategory } from "@/lib/types";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+function SpringButton({ onPress, children, className, style, hitSlop }: any) {
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={() => (scale.value = withSpring(0.95, { damping: 12, stiffness: 400 }))}
+      onPressOut={() => (scale.value = withSpring(1, { damping: 12, stiffness: 400 }))}
+      className={className}
+      style={[style, animatedStyle]}
+      hitSlop={hitSlop}
+    >
+      {children}
+    </AnimatedPressable>
+  );
+}
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -30,10 +56,15 @@ export default function ProductDetailScreen() {
     productId: string;
   }>();
   const router = useRouter();
+  const { addToCart, isInCart, getItemCount, getItemQuantity, updateQuantity } = useCart();
+  const colorScheme = useColorScheme();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [viewerImageSource, setViewerImageSource] = useState<any>(null);
+  const [justAdded, setJustAdded] = useState(false);
 
   const categoryData = CATEGORIES[mainCategory as MainCategory];
   const subCategoryData = categoryData?.subcategories.find(
@@ -72,23 +103,46 @@ export default function ProductDetailScreen() {
     }
   };
 
-  const handlePlaceOrder = () => {
-    Alert.alert(
-      "Place Order",
-      `Thank you for your interest in "${product?.name}". Our team will contact you shortly to confirm your order.`,
-      [{ text: "OK" }]
-    );
+  const handleAddToCart = () => {
+    if (!product) return;
+    const alreadyInCart = isInCart(product.id);
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      type: product.type,
+      image: product.images?.[0] ?? null,
+      mainCategory: product.mainCategory,
+      subCategory: product.subCategory,
+    });
+    if (!alreadyInCart) {
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 2000);
+    }
+  };
+
+  const cartItemCount = getItemCount();
+  const productInCart = product ? isInCart(product.id) : false;
+  const currentQuantity = product ? getItemQuantity(product.id) : 0;
+
+  const handleIncrement = () => {
+    if (!product) return;
+    updateQuantity(product.id, currentQuantity + 1);
+  };
+
+  const handleDecrement = () => {
+    if (!product) return;
+    updateQuantity(product.id, currentQuantity - 1);
   };
 
   const handleEnquiry = () => {
-    const message = `Hi, I'm interested in ${product?.name} (${categoryData?.label} - ${subCategoryData?.label}). Please share more details.`;
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    Linking.openURL(url).catch(() => {
-      Alert.alert(
-        "Enquiry",
-        "Our team will get back to you shortly regarding this product.",
-        [{ text: "OK" }]
-      );
+    if (!product) return;
+    router.push({
+      pathname: "/enquiry",
+      params: {
+        productName: product.name,
+        productType: product.type,
+        productId: product.id,
+      },
     });
   };
 
@@ -132,7 +186,7 @@ export default function ProductDetailScreen() {
         {/* Back Button (Floating) */}
         <Pressable
           onPress={() => router.back()}
-          className="absolute left-4 top-4 z-10 h-10 w-10 items-center justify-center rounded-full bg-white/90 dark:bg-[#222]/90 active:bg-white"
+          className="absolute left-4 top-4 z-10 h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-[#222] active:bg-gray-100"
           style={{
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 2 },
@@ -141,7 +195,31 @@ export default function ProductDetailScreen() {
             elevation: 4,
           }}
         >
-          <ArrowLeft size={22} color={COLORS.textPrimary} strokeWidth={2} />
+          <ArrowLeft size={22} color={colorScheme === 'dark' ? '#fff' : COLORS.textPrimary} strokeWidth={2} />
+        </Pressable>
+
+        {/* Cart Button (Floating) */}
+        <Pressable
+          onPress={() => router.push("/cart")}
+          className="absolute right-4 top-4 z-10 h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-[#222] active:bg-gray-100"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4,
+          }}
+        >
+          <ShoppingCart size={20} color={colorScheme === 'dark' ? '#fff' : COLORS.textPrimary} strokeWidth={2} />
+          {cartItemCount > 0 && (
+            <View
+              className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1"
+            >
+              <Text className="font-poppins-semibold text-[10px] text-white">
+                {cartItemCount > 99 ? "99+" : cartItemCount}
+              </Text>
+            </View>
+          )}
         </Pressable>
 
         {/* Product Images */}
@@ -158,13 +236,21 @@ export default function ProductDetailScreen() {
         >
           {(product.images?.length > 0 ? product.images : [""]).map(
             (uri, index) => (
-              <ProductImage
+              <Pressable
                 key={index}
-                source={uri}
-                className="bg-background-secondary"
-                contentFit="contain"
+                onPress={() => {
+                  setViewerImageSource(uri);
+                  setImageViewerVisible(true);
+                }}
                 style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 0.85 }}
-              />
+              >
+                <ProductImage
+                  source={uri}
+                  className="bg-background-secondary"
+                  contentFit="contain"
+                  style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH * 0.85 }}
+                />
+              </Pressable>
             )
           )}
         </ScrollView>
@@ -297,9 +383,9 @@ export default function ProductDetailScreen() {
       {/* Fixed CTA Buttons */}
       <SafeAreaView edges={["bottom"]} className="border-t border-border dark:border-[#333] bg-white dark:bg-[#0f0f0f]">
         <View className="flex-row gap-3 px-5 py-3">
-          <Pressable
+          <SpringButton
             onPress={handleEnquiry}
-            className="flex-1 flex-row items-center justify-center rounded-button border-2 border-primary py-3.5 active:bg-primary/5"
+            className="flex-1 flex-row items-center justify-center rounded-button border-2 border-primary py-3.5"
           >
             <MessageCircle
               size={18}
@@ -309,19 +395,78 @@ export default function ProductDetailScreen() {
             <Text className="ml-2 font-poppins-semibold text-sm text-primary">
               Enquire Now
             </Text>
-          </Pressable>
+          </SpringButton>
 
-          <Pressable
-            onPress={handlePlaceOrder}
-            className="flex-1 flex-row items-center justify-center rounded-button bg-primary py-3.5 active:bg-primary-dark"
-          >
-            <ShoppingCart size={18} color="#FFFFFF" strokeWidth={2} />
-            <Text className="ml-2 font-poppins-semibold text-sm text-white">
-              Place Order
-            </Text>
-          </Pressable>
+          {productInCart && !justAdded ? (
+            <View className="flex-1 flex-row items-center justify-between rounded-button border-2 border-primary bg-primary/5 px-2 py-1.5">
+              <SpringButton
+                onPress={handleDecrement}
+                className="h-11 w-11 items-center justify-center rounded-full bg-white dark:bg-[#1a1a1a]"
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 2,
+                  elevation: 2,
+                }}
+              >
+                <Minus size={20} color={COLORS.primary} strokeWidth={2.5} />
+              </SpringButton>
+              
+              <Text className="font-poppins-bold text-lg text-primary">
+                {currentQuantity}
+              </Text>
+
+              <SpringButton
+                onPress={handleIncrement}
+                className="h-11 w-11 items-center justify-center rounded-full bg-primary"
+                style={{
+                  shadowColor: "#B91C1C",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                  elevation: 3,
+                }}
+              >
+                <Plus size={20} color="#fff" strokeWidth={2.5} />
+              </SpringButton>
+            </View>
+          ) : (
+            <SpringButton
+              onPress={justAdded ? () => router.push("/cart") : handleAddToCart}
+              className={`flex-1 flex-row items-center justify-center rounded-button py-3.5 ${
+                justAdded
+                  ? "bg-green-600"
+                  : "bg-primary"
+              }`}
+            >
+              {justAdded ? (
+                <>
+                  <Check size={18} color="#FFFFFF" strokeWidth={2.5} />
+                  <Text className="ml-2 font-poppins-semibold text-sm text-white">
+                    Go to Cart
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={18} color="#FFFFFF" strokeWidth={2} />
+                  <Text className="ml-2 font-poppins-semibold text-sm text-white">
+                    Add to Cart
+                  </Text>
+                </>
+              )}
+            </SpringButton>
+          )}
         </View>
       </SafeAreaView>
+
+      {/* Full Screen Image Viewer */}
+      <FullScreenImageViewer
+        visible={imageViewerVisible}
+        source={viewerImageSource}
+        onClose={() => setImageViewerVisible(false)}
+        onEnquire={handleEnquiry}
+      />
     </SafeAreaView>
   );
 }

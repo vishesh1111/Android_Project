@@ -1,3 +1,4 @@
+import Animated, { FadeInDown } from "react-native-reanimated";
 import CategoryCard from "@/components/CategoryCard";
 import ThemeToggle from "@/components/ThemeToggle";
 import { CATEGORIES } from "@/constants/categories";
@@ -27,10 +28,7 @@ export default function SelectionScreen() {
 
         {/* Header */}
         <View className="items-center px-6 pb-8 pt-2">
-          <Text
-            className="font-poppins-bold text-3xl text-primary tracking-wide"
-            style={{ textShadowColor: 'rgba(185, 28, 28, 0.4)', textShadowOffset: { width: 0, height: 4 }, textShadowRadius: 0 }}
-          >
+          <Text className="font-poppins-bold text-3xl text-primary tracking-wide">
             VIVA FITNESS
           </Text>
           <Text className="mt-2 text-center font-poppins text-sm text-[#4A5568] dark:text-gray-300">
@@ -40,14 +38,18 @@ export default function SelectionScreen() {
 
         {/* Category Selection */}
         <View className="px-6">
-          {(Object.keys(CATEGORIES) as MainCategory[]).map((key) => (
-            <CategoryCard
+          {(Object.keys(CATEGORIES) as MainCategory[]).map((key, index) => (
+            <Animated.View 
               key={key}
-              category={key}
-              label={CATEGORIES[key].label}
-              subtitle={CATEGORIES[key].subtitle}
-              onPress={() => handleCategoryPress(key)}
-            />
+              entering={FadeInDown.delay(index * 50).duration(300)}
+            >
+              <CategoryCard
+                category={key}
+                label={CATEGORIES[key].label}
+                subtitle={CATEGORIES[key].subtitle}
+                onPress={() => handleCategoryPress(key)}
+              />
+            </Animated.View>
           ))}
         </View>
 

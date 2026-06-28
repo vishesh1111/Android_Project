@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { Image } from "expo-image";
-import type { StyleProp, ViewStyle } from "react-native";
+import type { StyleProp, ViewStyle, ImageStyle } from "react-native";
 
 interface ProductImageProps {
   source: any;
   className?: string;
   contentFit?: "cover" | "contain" | "fill";
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ImageStyle>;
 }
 
 const PLACEHOLDER_BLURHASH =

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import {
@@ -11,6 +11,8 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import AnimatedSplash from "@/components/AnimatedSplash";
+import FloatingChatBubble from "@/components/FloatingChatBubble";
+import { CartProvider } from "@/lib/CartContext";
 
 import "../global.css";
 
@@ -18,6 +20,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
+  const pathname = usePathname();
 
   const [fontsLoaded, fontError] = useFonts({
     Poppins_400Regular,
@@ -42,15 +45,35 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar style={showSplash ? "light" : "dark"} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: "slide_from_right",
-        }}
-      />
-      {showSplash && <AnimatedSplash onFinish={handleSplashFinish} />}
-    </View>
+    <CartProvider>
+      <View style={{ flex: 1 }}>
+        <StatusBar style={showSplash ? "light" : "dark"} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_right",
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen 
+            name="cart" 
+            options={{ 
+              presentation: "modal", 
+              animation: "slide_from_bottom" 
+            }} 
+          />
+          <Stack.Screen 
+            name="enquiry" 
+            options={{ 
+              presentation: "modal", 
+              animation: "slide_from_bottom" 
+            }} 
+          />
+        </Stack>
+        {!showSplash && pathname === "/" && <FloatingChatBubble />}
+        {showSplash && <AnimatedSplash onFinish={handleSplashFinish} />}
+      </View>
+    </CartProvider>
   );
 }
+

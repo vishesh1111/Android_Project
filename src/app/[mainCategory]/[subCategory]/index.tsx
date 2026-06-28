@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { View, Text, FlatList, Pressable, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, ShoppingCart } from "lucide-react-native";
 import {
   collection,
   query,
@@ -16,6 +17,7 @@ import EmptyState from "@/components/EmptyState";
 import { CATEGORIES } from "@/constants/categories";
 import { getLocalProducts } from "@/constants/products";
 import { COLORS } from "@/constants/theme";
+import { useCart } from "@/lib/CartContext";
 import type { Product, MainCategory } from "@/lib/types";
 
 const COMMERCIAL_STRENGTH_SERIES = [
@@ -63,6 +65,8 @@ export default function ProductListingScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
+  const { getItemCount } = useCart();
+  const cartItemCount = getItemCount();
 
   const categoryData = CATEGORIES[mainCategory as MainCategory];
   const subCategoryData = categoryData?.subcategories.find(
@@ -154,10 +158,25 @@ export default function ProductListingScreen() {
             {categoryData?.label ?? ""}
           </Text>
         </View>
-        <View className="rounded-full bg-primary/10 px-3 py-1">
-          <Text className="font-poppins-medium text-xs text-primary">
-            {loading ? "..." : `${displayedProducts.length} items`}
-          </Text>
+        <View className="flex-row items-center gap-2">
+          <View className="rounded-full bg-primary/10 px-3 py-1">
+            <Text className="font-poppins-medium text-xs text-primary">
+              {loading ? "..." : `${displayedProducts.length} items`}
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => router.push("/cart")}
+            className="h-10 w-10 items-center justify-center rounded-full active:bg-background-secondary"
+          >
+            <ShoppingCart size={22} color={COLORS.textPrimary} strokeWidth={2} />
+            {cartItemCount > 0 && (
+              <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1">
+                <Text className="font-poppins-semibold text-[10px] text-white">
+                  {cartItemCount > 99 ? "99+" : cartItemCount}
+                </Text>
+              </View>
+            )}
+          </Pressable>
         </View>
       </View>
 
@@ -211,13 +230,15 @@ export default function ProductListingScreen() {
           }}
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <ProductCard
-              product={item}
-              onPress={() =>
-                router.push(`/${mainCategory}/${subCategory}/${item.id}`)
-              }
-            />
+          renderItem={({ item, index }) => (
+            <Animated.View entering={FadeInDown.delay(index * 50).duration(300)}>
+              <ProductCard
+                product={item}
+                onPress={() =>
+                  router.push(`/${mainCategory}/${subCategory}/${item.id}`)
+                }
+              />
+            </Animated.View>
           )}
         />
       )}

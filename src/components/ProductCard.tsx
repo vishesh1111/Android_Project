@@ -1,5 +1,10 @@
 import React from "react";
 import { Pressable, View, Text, Dimensions } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 import ProductImage from "./ProductImage";
 import type { Product } from "@/lib/types";
 
@@ -11,19 +16,40 @@ interface ProductCardProps {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = (SCREEN_WIDTH - 48) / 2; // 16px padding on each side + 16px gap
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export default function ProductCard({ product, onPress }: ProductCardProps) {
+  const scale = useSharedValue(1);
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95, { damping: 12, stiffness: 400 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 12, stiffness: 400 });
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={onPress}
-      className="mb-4 overflow-hidden rounded-card bg-white active:scale-[0.97]"
-      style={{
-        width: CARD_WIDTH,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 3,
-      }}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      className="mb-4 overflow-hidden rounded-card bg-white"
+      style={[
+        {
+          width: CARD_WIDTH,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.06,
+          shadowRadius: 8,
+          elevation: 3,
+        },
+        animatedStyle,
+      ]}
     >
       {/* Product Image */}
       <ProductImage
@@ -68,6 +94,6 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
           )}
         </View>
       </View>
-    </Pressable>
+    </AnimatedPressable>
   );
 }

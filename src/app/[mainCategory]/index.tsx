@@ -1,3 +1,4 @@
+import Animated, { FadeInDown } from "react-native-reanimated";
 import React from "react";
 import { View, Text, FlatList, Pressable, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -7,11 +8,14 @@ import SubCategoryRow from "@/components/SubCategoryRow";
 import ThemeToggle from "@/components/ThemeToggle";
 import { CATEGORIES } from "@/constants/categories";
 import { COLORS } from "@/constants/theme";
+import { useCart } from "@/lib/CartContext";
 import type { MainCategory } from "@/lib/types";
 
 export default function SubCategoryScreen() {
   const { mainCategory } = useLocalSearchParams<{ mainCategory: string }>();
   const router = useRouter();
+  const { getItemCount } = useCart();
+  const cartItemCount = getItemCount();
 
   const categoryData = CATEGORIES[mainCategory as MainCategory];
 
@@ -40,16 +44,23 @@ export default function SubCategoryScreen() {
           >
             <ArrowLeft size={24} color={COLORS.primary} strokeWidth={2} />
           </Pressable>
-          <Text 
-            className="font-poppins-bold text-lg text-primary tracking-wide"
-            style={{ textShadowColor: 'rgba(185, 28, 28, 0.5)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 }}
-          >
+          <Text className="font-poppins-bold text-lg text-primary tracking-wide">
             VIVA FITNESS
           </Text>
           <View className="flex-row items-center">
             <ThemeToggle />
-            <Pressable className="ml-2 h-10 w-10 items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10">
-              <ShoppingCart size={24} color="#9CA3AF" strokeWidth={2} />
+            <Pressable
+              onPress={() => router.push("/cart")}
+              className="ml-2 h-10 w-10 items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10"
+            >
+              <ShoppingCart size={24} color={COLORS.textPrimary} strokeWidth={2} />
+              {cartItemCount > 0 && (
+                <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1">
+                  <Text className="font-poppins-semibold text-[10px] text-white">
+                    {cartItemCount > 99 ? "99+" : cartItemCount}
+                  </Text>
+                </View>
+              )}
             </Pressable>
           </View>
         </View>
@@ -70,11 +81,13 @@ export default function SubCategoryScreen() {
             data={categoryData.subcategories}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
-              <SubCategoryRow
-                item={item}
-                isLast={index === categoryData.subcategories.length - 1}
-                onPress={() => router.push(`/${mainCategory}/${item.id}`)}
-              />
+              <Animated.View entering={FadeInDown.delay(index * 50).duration(300)}>
+                <SubCategoryRow
+                  item={item}
+                  isLast={index === categoryData.subcategories.length - 1}
+                  onPress={() => router.push(`/${mainCategory}/${item.id}`)}
+                />
+              </Animated.View>
             )}
             showsVerticalScrollIndicator={false}
             scrollEnabled={false}

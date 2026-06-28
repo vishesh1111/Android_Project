@@ -177,8 +177,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '300',
     letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
   },
 });

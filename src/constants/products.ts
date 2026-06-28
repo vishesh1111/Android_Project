@@ -5802,7 +5802,7 @@ export const COMMERCIAL_AIR_ROWERS_SKI: Product[] = [
     ],
     mainCategory: 'commercial',
     subCategory: 'air-rowers-ski',
-    images: [],
+    images: [require('@/assets/images/products/ar1000-500x500.jpg')],
     specifications: {
       "Weight": "Adjustable pedals and ergonomic handle bars accommodate different user needs",
       "Max User Weight": "150 kg",
@@ -5838,7 +5838,7 @@ export const COMMERCIAL_AIR_ROWERS_SKI: Product[] = [
     ],
     mainCategory: 'commercial',
     subCategory: 'air-rowers-ski',
-    images: [],
+    images: [require('@/assets/images/products/ar800-pic-500x500.jpg')],
     specifications: {
       "Max User Weight": "160 kgs",
       "Dimensions": "224 x 35 x 150 CM"
@@ -5919,7 +5919,7 @@ export const COMMERCIAL_AIR_ROWERS_SKI: Product[] = [
     ],
     mainCategory: 'commercial',
     subCategory: 'air-rowers-ski',
-    images: [],
+    images: [require('@/assets/images/products/AR500-500x500.jpg')],
     specifications: {
       "Max User Weight": "160 Kgs",
       "Dimensions": "241 x 62 x 111 CM"
@@ -5987,7 +5987,7 @@ export const COMMERCIAL_AIR_ROWERS_SKI: Product[] = [
     ],
     mainCategory: 'commercial',
     subCategory: 'air-rowers-ski',
-    images: [],
+    images: [require('@/assets/images/products/sr1000-500x500.jpg')],
     specifications: {
       "Dual function": "Rowing Bar & Skiing Bar training",
       "Weight": "4.1 kg",
@@ -6031,7 +6031,7 @@ export const COMMERCIAL_AIR_ROWERS_SKI: Product[] = [
     ],
     mainCategory: 'commercial',
     subCategory: 'air-rowers-ski',
-    images: [],
+    images: [require('@/assets/images/products/ski500pic-500x500.jpg')],
     specifications: {
       "Weight": "Display",
       "Max User Weight": "160 Kgs",
