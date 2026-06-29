@@ -213,9 +213,9 @@ export default function ProductDetailScreen() {
           <ShoppingCart size={20} color={colorScheme === 'dark' ? '#fff' : COLORS.textPrimary} strokeWidth={2} />
           {cartItemCount > 0 && (
             <View
-              className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1"
+              className="absolute right-0 top-0 h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 border-[1.5px] border-white dark:border-[#121212]"
             >
-              <Text className="font-poppins-semibold text-[10px] text-white">
+              <Text className="font-poppins-semibold text-[9px] text-white">
                 {cartItemCount > 99 ? "99+" : cartItemCount}
               </Text>
             </View>

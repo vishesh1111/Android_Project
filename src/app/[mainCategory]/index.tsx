@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeft, ShoppingCart } from "lucide-react-native";
 import SubCategoryRow from "@/components/SubCategoryRow";
-import ThemeToggle from "@/components/ThemeToggle";
+
 import { CATEGORIES } from "@/constants/categories";
 import { COLORS } from "@/constants/theme";
 import { useCart } from "@/lib/CartContext";
@@ -48,15 +48,15 @@ export default function SubCategoryScreen() {
             VIVA FITNESS
           </Text>
           <View className="flex-row items-center">
-            <ThemeToggle />
+
             <Pressable
               onPress={() => router.push("/cart")}
               className="ml-2 h-10 w-10 items-center justify-center rounded-full active:bg-black/5 dark:active:bg-white/10"
             >
               <ShoppingCart size={24} color={COLORS.textPrimary} strokeWidth={2} />
               {cartItemCount > 0 && (
-                <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1">
-                  <Text className="font-poppins-semibold text-[10px] text-white">
+                <View className="absolute right-0 top-0 h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 border-[1.5px] border-[#F4F6F9] dark:border-black">
+                  <Text className="font-poppins-semibold text-[9px] text-white">
                     {cartItemCount > 99 ? "99+" : cartItemCount}
                   </Text>
                 </View>

@@ -55,6 +55,10 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="index" />
+          <Stack.Screen name="selection" />
+          <Stack.Screen name="about" />
+          <Stack.Screen name="connect" />
+          <Stack.Screen name="contact" />
           <Stack.Screen 
             name="cart" 
             options={{ 
@@ -70,7 +74,7 @@ export default function RootLayout() {
             }} 
           />
         </Stack>
-        {!showSplash && pathname === "/" && <FloatingChatBubble />}
+        {!showSplash && pathname === "/selection" && <FloatingChatBubble />}
         {showSplash && <AnimatedSplash onFinish={handleSplashFinish} />}
       </View>
     </CartProvider>

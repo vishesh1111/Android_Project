@@ -1,65 +1,131 @@
-import Animated, { FadeInDown } from "react-native-reanimated";
-import CategoryCard from "@/components/CategoryCard";
-import ThemeToggle from "@/components/ThemeToggle";
-import { CATEGORIES } from "@/constants/categories";
-import type { MainCategory } from "@/lib/types";
-import { useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { User, Smartphone, Gift, ChevronDown, ChevronRight } from 'lucide-react-native';
+import { COLORS } from "@/constants/theme";
 
-export default function SelectionScreen() {
+export default function WelcomeScreen() {
   const router = useRouter();
+  const [fullName, setFullName] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [referralCode, setReferralCode] = useState('');
 
-  const handleCategoryPress = (category: MainCategory) => {
-    router.push(`/${category}`);
+  const handleContinue = () => {
+    if (!fullName.trim() || !mobileNumber.trim()) {
+      Alert.alert(
+        "Missing Information", 
+        "Please enter your Full Name and Mobile Number to proceed."
+      );
+      return;
+    }
+    
+    // In a real app, you might want to save this data to AsyncStorage or your backend here
+    
+    router.replace('/selection');
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9FAFB] dark:bg-[#0f0f0f]">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView className="flex-1 bg-[#1A1A1A]" edges={['top', 'bottom']}>
+      {/* Add a dotted background pattern here if needed in the future, for now using a solid dark background */}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1 justify-center p-4"
       >
-        {/* Header Options */}
-        <View className="items-end px-4 pt-4">
-          <ThemeToggle />
-        </View>
-
-        {/* Header */}
-        <View className="items-center px-6 pb-8 pt-2">
-          <Text className="font-poppins-bold text-3xl text-primary tracking-wide">
-            VIVA FITNESS
-          </Text>
-          <Text className="mt-2 text-center font-poppins text-sm text-[#4A5568] dark:text-gray-300">
-            Premium Gym Equipments for Every Need
-          </Text>
-        </View>
-
-        {/* Category Selection */}
-        <View className="px-6">
-          {(Object.keys(CATEGORIES) as MainCategory[]).map((key, index) => (
-            <Animated.View 
-              key={key}
-              entering={FadeInDown.delay(index * 50).duration(300)}
+        <ScrollView 
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="bg-white rounded-3xl p-6 shadow-lg m-2">
+            <Text 
+              className="text-center font-poppins-bold text-xl mb-6"
+              style={{ color: COLORS.primary }}
             >
-              <CategoryCard
-                category={key}
-                label={CATEGORIES[key].label}
-                subtitle={CATEGORIES[key].subtitle}
-                onPress={() => handleCategoryPress(key)}
-              />
-            </Animated.View>
-          ))}
-        </View>
+              VIVA FITNESS
+            </Text>
+            <Text className="text-3xl font-poppins-bold text-[#1A1A1A] mb-1">
+              Welcome!
+            </Text>
+            <Text className="text-[#4A4A4A] font-poppins mb-6">
+              Let's get to know you before we begin.
+            </Text>
+            
+            {/* Full Name */}
+            <View className="mb-4">
+              <Text className="text-[#1A1A1A] font-poppins-semibold text-[13px] mb-2">Full Name</Text>
+              <View className="flex-row items-center border border-[#F0E6E6] rounded-2xl px-4 py-3.5 bg-[#FFF9F9]">
+                <User color="#4A4A4A" size={20} />
+                <TextInput
+                  className="flex-1 ml-3 font-poppins text-base text-[#1A1A1A] pb-1"
+                  placeholder="Enter your full name"
+                  placeholderTextColor="#999999"
+                  value={fullName}
+                  onChangeText={setFullName}
+                />
+              </View>
+            </View>
 
-        {/* Footer */}
-        <View className="mt-auto items-center pb-8 pt-10">
-          <Text className="font-poppins text-xs font-medium text-[#718096] dark:text-gray-500">
-            Trusted By Gyms Across India
-          </Text>
-        </View>
-      </ScrollView>
+            {/* Mobile Number */}
+            <View className="mb-4">
+              <Text className="text-[#1A1A1A] font-poppins-semibold text-[13px] mb-2">Mobile Number</Text>
+              <View className="flex-row">
+                <View className="flex-row items-center justify-between border border-[#F0E6E6] rounded-2xl px-4 py-3.5 bg-[#FFF9F9] mr-3">
+                  <Text className="font-poppins text-base mr-2 pb-1 text-[#1A1A1A]">+91</Text>
+                  <ChevronDown color="#4A4A4A" size={16} />
+                </View>
+                <View className="flex-1 flex-row items-center border border-[#F0E6E6] rounded-2xl px-4 py-3.5 bg-[#FFF9F9]">
+                  <Smartphone color="#4A4A4A" size={20} />
+                  <TextInput
+                    className="flex-1 ml-3 font-poppins text-base text-[#1A1A1A] pb-1"
+                    placeholder="Enter your mobile number"
+                    placeholderTextColor="#999999"
+                    keyboardType="phone-pad"
+                    value={mobileNumber}
+                    onChangeText={setMobileNumber}
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Referral / Dealer Code */}
+            <View className="mb-6">
+              <Text className="text-[#1A1A1A] font-poppins-semibold text-[13px] mb-2">Referral / Dealer Code</Text>
+              <View className="flex-row items-center border border-[#F0E6E6] rounded-2xl px-4 py-3.5 bg-[#FFF9F9]">
+                <Gift color="#4A4A4A" size={20} />
+                <TextInput
+                  className="flex-1 ml-3 font-poppins text-base text-[#1A1A1A] pb-1"
+                  placeholder="Enter code"
+                  placeholderTextColor="#999999"
+                  value={referralCode}
+                  onChangeText={setReferralCode}
+                  autoCapitalize="characters"
+                />
+              </View>
+              <Text className="text-[#666666] font-poppins text-[11px] mt-2 ml-1">
+                Leave blank if you don't have one.
+              </Text>
+            </View>
+
+            <TouchableOpacity 
+              className="rounded-full py-4 flex-row justify-center items-center mb-6 shadow-sm"
+              style={{ backgroundColor: COLORS.primary }}
+              onPress={handleContinue}
+              activeOpacity={0.8}
+            >
+              <Text className="text-white font-poppins-semibold text-lg mr-2 pb-1">Continue</Text>
+              <ChevronRight color="white" size={20} />
+            </TouchableOpacity>
+
+            <Text className="text-center font-poppins text-[11px] text-[#666666] leading-5 px-2">
+              By continuing, you agree to our{" "}
+              <Text style={{ color: COLORS.primary }} className="font-poppins-semibold">Terms & Conditions</Text> 
+              {" "}and{" "}
+              <Text style={{ color: COLORS.primary }} className="font-poppins-semibold">Privacy Policy</Text>.
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
