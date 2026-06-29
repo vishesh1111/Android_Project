@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { User, Smartphone, Gift, ChevronDown, ChevronRight } from 'lucide-react-native';
 import { COLORS } from "@/constants/theme";
+import { useRouter } from 'expo-router';
+import { ChevronDown, ChevronRight, Gift, Smartphone, User } from 'lucide-react-native';
+import { useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -14,31 +14,31 @@ export default function WelcomeScreen() {
   const handleContinue = () => {
     if (!fullName.trim() || !mobileNumber.trim()) {
       Alert.alert(
-        "Missing Information", 
+        "Missing Information",
         "Please enter your Full Name and Mobile Number to proceed."
       );
       return;
     }
-    
+
     // In a real app, you might want to save this data to AsyncStorage or your backend here
-    
+
     router.replace('/selection');
   };
 
   return (
     <SafeAreaView className="flex-1 bg-[#1A1A1A]" edges={['top', 'bottom']}>
       {/* Add a dotted background pattern here if needed in the future, for now using a solid dark background */}
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1 justify-center p-4"
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           <View className="bg-white rounded-3xl p-6 shadow-lg m-2">
-            <Text 
+            <Text
               className="text-center font-poppins-bold text-xl mb-6"
               style={{ color: COLORS.primary }}
             >
@@ -50,7 +50,7 @@ export default function WelcomeScreen() {
             <Text className="text-[#4A4A4A] font-poppins mb-6">
               Let's get to know you before we begin.
             </Text>
-            
+
             {/* Full Name */}
             <View className="mb-4">
               <Text className="text-[#1A1A1A] font-poppins-semibold text-[13px] mb-2">Full Name</Text>
@@ -103,11 +103,11 @@ export default function WelcomeScreen() {
                 />
               </View>
               <Text className="text-[#666666] font-poppins text-[11px] mt-2 ml-1">
-                Leave blank if you don't have one.
+
               </Text>
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               className="rounded-full py-4 flex-row justify-center items-center mb-6 shadow-sm"
               style={{ backgroundColor: COLORS.primary }}
               onPress={handleContinue}
@@ -119,7 +119,7 @@ export default function WelcomeScreen() {
 
             <Text className="text-center font-poppins text-[11px] text-[#666666] leading-5 px-2">
               By continuing, you agree to our{" "}
-              <Text style={{ color: COLORS.primary }} className="font-poppins-semibold">Terms & Conditions</Text> 
+              <Text style={{ color: COLORS.primary }} className="font-poppins-semibold">Terms & Conditions</Text>
               {" "}and{" "}
               <Text style={{ color: COLORS.primary }} className="font-poppins-semibold">Privacy Policy</Text>.
             </Text>

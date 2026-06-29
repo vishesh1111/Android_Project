@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "828866913060",
+    "project_id": "viva-fitness-cb68e",
+    "storage_bucket": "viva-fitness-cb68e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828866913060:android:3e5615caecb0fec5d549b1",
+        "android_client_info": {
+          "package_name": "com.vivafitness.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD02F0gmEsVDS5B3w_c75qXNjQcP5UUrQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

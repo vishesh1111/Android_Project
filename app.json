@@ -1,16 +1,21 @@
 {
   "expo": {
-    "name": "GymEquipment",
-    "slug": "gym-equipment",
+    "name": "Viva Fitness",
+    "slug": "viva-fitness",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "gymequipment",
+    "scheme": "vivafitness",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "buildNumber": "1",
+      "bundleIdentifier": "com.vivafitness.app",
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "versionCode": 1,
+      "package": "com.vivafitness.app",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#B91C1C",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
